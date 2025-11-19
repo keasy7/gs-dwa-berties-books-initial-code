@@ -65,17 +65,30 @@ router.post('/loggedIn', function (req, res, next) {
 
         bcrypt.compare(plainPassword, hashedPassword, function(err, result) {
             if (err) {
+                loginAttempt(username, false);
                 return res.send('fatal error')
             }
 
             if (result == true) {
+                loginAttempt(username, true);
                 return res.send('You are now logged in, welcome back '+ username)
             } else {
+                loginAttempt(username, false);
                 return res.send('Login failed, please check your username and password and try again.')
             }
         })
     })
 })
 
+function loginAttempt(username, success) {
+    let sqlquery = "INSERT INTO login_attempts (username, success) VALUES (?, ?)";
+    const data = [username, success];
+
+    db.query(sqlquery, data, (err, result) => {
+        if (err) {
+            console.error('Error logging login attempt:', err);
+        }
+    });
+}
 // Export the router object so index.js can access it
 module.exports = router
