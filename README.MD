@@ -25,3 +25,13 @@ To create a history of sign in attmepts, i created another database called login
 then in the /loggedin logic i created a function that takes the username and success (bool) and deposits them into the new database.
 
 /users/audit takes you to a page of all login attempts
+
+
+Access control:
+Addbook and bookadded both guarded to protect databbase integrity.
+
+Search and view still permitted as new customers may want to browse before making an account
+
+Audit also given a redirect. Only admins should have access to this page
+
+Otherwise the site is viewable publically

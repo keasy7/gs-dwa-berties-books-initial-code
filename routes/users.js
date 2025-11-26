@@ -4,6 +4,14 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId ) {
+      res.redirect('./login') // redirect to the login page
+    } else { 
+        next (); // move to the next middleware function
+    } 
+}
+
 
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
@@ -32,7 +40,8 @@ router.post('/registered', function (req, res, next) {
     // saving data in database
     //res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);   
 
-router.get('/list', function(req, res, next) {
+router.get('/list', redirectLogin, function(req, res, next) { //guides users away from list if they haven't signed in
+    
     let sqlquery = "SELECT * FROM users"; // query database to get all the books
     // execute sql query
     db.query(sqlquery, (err, result) => {
@@ -43,9 +52,8 @@ router.get('/list', function(req, res, next) {
      });
 });
 
-router.get('/audit', function(req, res, next) {
-    let sqlquery = "SELECT * FROM login_attempts"; // query database to get all the books
-    // execute sql query
+router.get('/audit', redirectLogin, function(req, res, next) {
+    let sqlquery = "SELECT * FROM login_attempts"; // query database to get all the login attempts
     db.query(sqlquery, (err, result) => {
         if (err) {
             next(err)
@@ -82,6 +90,7 @@ router.post('/loggedIn', function (req, res, next) {
 
             if (result == true) {
                 loginAttempt(username, true);
+                req.session.userId = username; //creating session username
                 return res.send('You are now logged in, welcome back '+ username)
             } else {
                 loginAttempt(username, false);
