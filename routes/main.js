@@ -5,7 +5,8 @@ const { query, validationResult } = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
-      res.redirect('/users/login') // redirect to the login page
+      //res.redirect('/users/login') // redirect to the login page
+      res.redirect('/usr/365/users/login');
     } else { 
         next (); // move to the next middleware function
     } 
