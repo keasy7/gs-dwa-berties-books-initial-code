@@ -77,7 +77,7 @@ router.post('/loggedIn', function (req, res, next) {
         }
 
         if (results.length === 0) { //checks if username is correct
-            return res.send('Login failed, please check your username and password and try again.')
+            return res.send('Login failed, please check your username and password and try again. Username error.')
         }
 
         const hashedPassword = results[0].password; // get hashed password from database
