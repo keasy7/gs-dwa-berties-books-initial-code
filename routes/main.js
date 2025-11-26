@@ -1,6 +1,7 @@
 // Create a new router
 const express = require("express")
 const router = express.Router()
+const { query, validationResult } = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
@@ -45,7 +46,13 @@ router.get('/books/bargainbooks',function(req, res, next){
     });
 });
 
-router.post('/books/bookadded', redirectLogin, function (req, res, next) {
+router.post('/books/bookadded',
+
+    [query('name').isLength({ min: 1 }),
+    query('name').trim().escape(),
+    query('price').isNumeric()
+    ]
+    , function (req, res, next) {
     // saving data in database
     let sqlquery = "INSERT INTO books (name, price) VALUES (?,?)"
     // execute sql query
@@ -59,7 +66,17 @@ router.post('/books/bookadded', redirectLogin, function (req, res, next) {
     })
 }) 
 
-router.get('/books/search_result', function (req, res, next) {
+router.get('/books/search_result', 
+    [query('search_text').isLength({ min: 1 }),
+        query('search_text').trim().escape()
+    ],
+
+    function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.render('search.ejs') //resets page if wrong input
+    }
+    else {  
 
     // saving data in database
     const keyword = `%${req.query.search_text}%`; //creates variable for searching, added % so that it searches by character and not exact match
@@ -73,7 +90,7 @@ router.get('/books/search_result', function (req, res, next) {
         else
             res.render('search_result.ejs', {result: result}) // feed information back to user
     })
-}) 
+}})   
 
 // Export the router object so index.js can access it
 module.exports = router

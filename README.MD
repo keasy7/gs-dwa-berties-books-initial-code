@@ -35,3 +35,6 @@ Search and view still permitted as new customers may want to browse before makin
 Audit also given a redirect. Only admins should have access to this page
 
 Otherwise the site is viewable publically
+
+input validation:
+i have added input validation to the login, addbook as well as search books.

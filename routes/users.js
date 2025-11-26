@@ -4,6 +4,8 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
+const { check, validationResult } = require('express-validator');
+
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
       res.redirect('./login') // redirect to the login page
@@ -17,7 +19,19 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
 
-router.post('/registered', function (req, res, next) {
+router.post('/registered', 
+                 [check('email').isEmail(), //validating email
+                  check('username').isLength({ min: 5, max: 20}), //validating username length
+                  check('first').isLength({ max: 20}), //validating first name length
+                  check('last').isLength({ max: 20}), //validating last name length
+                  check('password').isLength({ min: 8 })], //validating password length
+                 function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.render('./register') //resets page if wrong input
+    }
+    else { 
+
     const plainPassword = req.body.password 
     bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
         // Store hashed password in your database.
@@ -33,12 +47,12 @@ router.post('/registered', function (req, res, next) {
                 res.send(result)
                 //res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);   
             }
-        })
-    })
-}) // closes router.post('/registered')
+        });
+    });
+}
+}
+) // closes router.post('/registered')
 
-    // saving data in database
-    //res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);   
 
 router.get('/list', redirectLogin, function(req, res, next) { //guides users away from list if they haven't signed in
     
